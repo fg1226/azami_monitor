@@ -1,0 +1,5 @@
+co2_env/
+__pycache__/
+*.pyc
+data/
+.DS_Store
