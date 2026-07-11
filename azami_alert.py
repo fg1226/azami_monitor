@@ -67,7 +67,7 @@ def main():
     now = time.strftime("%Y-%m-%d %H:%M:%S")
 
     # 3. 記録（DataLoggerとDBMnagerを使用）
-    logger.save(data, data)
+    logger.save(now, data)
     db.write(now, data)
 
     # 4. 定期通知
