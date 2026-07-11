@@ -48,3 +48,11 @@ class DBManager:
             ''', (timestamp, data["temp"], data["hum"], data["co2"], data.get("pressure")))
         conn.commit()
         conn.close()
+    def fetch_all_data(self):
+        """全データをリストとして取得する"""
+        conn = sqlite3.connect(self.db_file)
+        cursor = conn.cursor()
+        cursor.execute('SELECT timestamp, temp, hum, co2, pressure FROM environment_log')
+        data = cursor.fetchall()
+        conn.close()
+        return data
