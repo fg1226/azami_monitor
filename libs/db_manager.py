@@ -2,8 +2,21 @@ import sqlite3
 import os
 
 class DBManager:
-    def __init__(self, db_file="/mnt/hdd/azami_monitor/data/sensor_data.db"):
-        self.db_file = db_file
+    def __init__(self, db_file=None):
+        # 💡 ここで自動判定！
+        # もし引数でパスが指定されなかったら、現在のファイルの場所から自動でパスを計算する
+        if db_file is None:
+            # このファイルの親の親（つまり azami-monitor または azami-monitor-dev フォルダ）を取得
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            
+            # フォルダ名が「dev」で終わる場合は開発用DB、そうじゃない場合は本番のHDDを向く
+            if base_dir.endswith("-dev"):
+                self.db_file = os.path.join(base_dir, "data", "sensor_data.db")
+            else:
+                self.db_file = "/mnt/hdd/azami_monitor/data/sensor_data.db"
+        else:
+            self.db_file = db_file
+            
         os.makedirs(os.path.dirname(self.db_file), exist_ok=True)
         self._init_db()
 

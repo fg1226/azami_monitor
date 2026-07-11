@@ -3,3 +3,6 @@ DISCORD_LOG_URL = "https://discordapp.com/api/webhooks/1523311887121514557/_5_nJ
 
 # 🚨 CO2濃度が基準を超えたときだけ緊急通知するチャンネル
 DISCORD_ALERT_URL = "https://discordapp.com/api/webhooks/1523305875908067378/41a4kjpxFgW4ynS53M3EIfeEohwNlEQ7KbJqGVAou2pgI0z0UfB12EvTn6T9IeRBEQyV"
+
+# 💻DBの更新を通知するチャンネル
+DISCORD_DB_URL = "https://discordapp.com/api/webhooks/1525391665802776586/pHtoaIp6y5RNpSGLJxI4pUy-dpbyV4oUFYh3MW83u435kYkM6dlQATInVQZ8dFhLcp_m"

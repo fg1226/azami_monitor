@@ -68,7 +68,6 @@ def main():
 
     # 3. 記録（DataLoggerとDBMnagerを使用）
     logger.save(now, data)
-    db.write(now, data)
 
     # 4. 定期通知
     if should_notify():
