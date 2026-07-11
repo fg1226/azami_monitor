@@ -37,16 +37,14 @@ class DBManager:
         conn.commit()
         conn.close()
 
-    def write(self, timestamp, data):
-        """データをDBに挿入する"""
-        try:
-            conn = sqlite3.connect(self.db_file)
-            cursor = conn.cursor()
+    def write_many(self, records):
+        """まとめて書き込んで最後にコミットする"""
+        conn = sqlite3.connect(self.db_file)
+        cursor = conn.cursor()
+        for timestamp, data in records:
             cursor.execute('''
                 INSERT INTO environment_log (timestamp, temp, hum, co2, pressure)
                 VALUES (?, ?, ?, ?, ?)
             ''', (timestamp, data["temp"], data["hum"], data["co2"], data.get("pressure")))
-            conn.commit()
-            conn.close()
-        except Exception as e:
-            print(f"【警告】DBへの書き込みに失敗しました: {e}")
+        conn.commit()
+        conn.close()
