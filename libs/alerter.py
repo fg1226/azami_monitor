@@ -18,7 +18,7 @@ class AlertManager:
         mention = f"<@{USER_ID}> "        
         
         # 1000を超えていたらカウントアップ
-        if co2 > 1000:
+        if co2 > 1100:
             count += 1
             # 3回連続超えたらアラート（既にアラート中なら重複通知しない）
             if count >= 3 and not was_alerting:
@@ -26,7 +26,7 @@ class AlertManager:
                 self._save_state(True, 0)
                 return
         # 800未満になったら回復判定
-        elif co2 < 800 and was_alerting:
+        elif co2 < 700 and was_alerting:
             self.notifier.send(f"{mention}\n🟢 **【換気完了】CO2濃度が {co2} ppm まで下がりました。もう大丈夫ですよ～！窓を閉めて構いません。**")
             self._save_state(False, 0)
             return
