@@ -6,3 +6,11 @@ DISCORD_ALERT_URL = "https://discordapp.com/api/webhooks/1523305875908067378/41a
 
 # 💻DBの更新を通知するチャンネル
 DISCORD_DB_URL = "https://discordapp.com/api/webhooks/1525391665802776586/pHtoaIp6y5RNpSGLJxI4pUy-dpbyV4oUFYh3MW83u435kYkM6dlQATInVQZ8dFhLcp_m"
+
+# 📃1日のまとめを受信するチャンネル
+DISCORD_NEWS_URL = "https://discordapp.com/api/webhooks/1525723022613414079/36DhD_-VXpGr2BSGDiLX8MO30dEIVES_7Mc5LDk6TZFLaj2O_qwsW1jxjAsTTg5w-j7k"
+
+# 📃１日のまとめのURL
+GRAFANA_ONE_DAY_URL = "http://localhost:3000/dashboard/snapshot/k92xNTG4PqVDtE3BBl7Jdbz8riOzRxwc"
+
+
