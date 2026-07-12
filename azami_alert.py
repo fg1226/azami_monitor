@@ -95,6 +95,7 @@ def main():
             .field("co2", int(data["co2"])) \
             .field("pressure", float(data["pressure"]))
         write_api.write(bucket=INFLUX_BUCKET, record=point)
+        print("✅ InfluxDBへの書き込み成功!") # ← これを追加
     except Exception as e:
         print(f"❌ InfluxDB書き込みエラー: {e}")
 
