@@ -109,7 +109,6 @@ def main():
             with open(LAST_NOTIFY_FILE, "r") as f:
                 elapsed = time.time() - float(f.read())
                 print(f"DEBUG: 通知判定 -> False (経過時間: {int(elapsed)}秒 / 600秒)")
-        send_periodic_log(data) # 【テスト用】一旦判定無視して送信してみるならこれ
 
     # 6. アラート判定（AlertManagerを使用）
     alerter.check(data)
