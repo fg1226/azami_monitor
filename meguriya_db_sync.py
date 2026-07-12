@@ -45,7 +45,12 @@ def main():
             
             for row in reader:
                 if len(row) >= 5:
-                    timestamp = row[0]
+
+                    timestamp = row[0].replace('\x00', '').strip()
+
+                    if not timestamp:
+                        continue
+
                     data = {
                         "temp": float(row[1]),
                         "hum": float(row[2]),
