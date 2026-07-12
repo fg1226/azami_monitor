@@ -13,4 +13,9 @@ DISCORD_NEWS_URL = "https://discordapp.com/api/webhooks/1525723022613414079/36Dh
 # 📃１日のまとめのURL
 GRAFANA_ONE_DAY_URL = "http://localhost:3000/dashboard/snapshot/k92xNTG4PqVDtE3BBl7Jdbz8riOzRxwc"
 
-
+# 📰 朝のニュース用設定
+# 天気やニュースのRSSフィードURL
+MORNING_NEWS_FEEDS = {
+    "天気": "https://rss-weather.yahoo.co.jp/rss/days/4410.xml", # 東京の天気
+    "社会": "https://news.yahoo.co.jp/rss/topics/domestic.xml"
+}

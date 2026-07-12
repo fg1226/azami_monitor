@@ -11,7 +11,7 @@ def send_daily_report():
     snapshot_url = GRAFANA_ONE_DAY_URL
     webhook_url = DISCORD_NEWS_URL
     
-    message = f"🌙 **【一日のまとめ】**\お疲れ様です。\n本日の測定グラフです\n{snapshot_url}"
+    message = f"🌙 **【一日のまとめ】*\nお疲れ様です。\n本日の測定グラフです\n{snapshot_url}"
     
     # Discordへ通知
     try:
