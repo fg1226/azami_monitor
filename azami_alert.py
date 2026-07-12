@@ -88,8 +88,8 @@ def main():
 
     # 4. InfluxDBへ直接書き込み
     try:
-        point = Point("environment") \
-            .time(datetime.utcnow()) \  # ← 文字列変換をやめて、現在のUTC時刻をそのまま渡す！
+        point = Point("environment_v2") \
+            .time(datetime.utcnow()) \
             .field("temp", float(data["temp"])) \
             .field("hum", float(data["hum"])) \
             .field("co2", int(data["co2"])) \
