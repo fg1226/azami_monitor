@@ -99,9 +99,17 @@ def main():
     except Exception as e:
         print(f"❌ InfluxDB書き込みエラー: {e}")
 
-    # 5. 定期通知
+    # 5. 定期通知の修正（デバッグ用）
     if should_notify():
+        print("DEBUG: 通知判定 -> True (送信します)")
         send_periodic_log(data)
+    else:
+        # 現在の経過時間を計算して表示
+        if os.path.exists(LAST_NOTIFY_FILE):
+            with open(LAST_NOTIFY_FILE, "r") as f:
+                elapsed = time.time() - float(f.read())
+                print(f"DEBUG: 通知判定 -> False (経過時間: {int(elapsed)}秒 / 600秒)")
+        send_periodic_log(data) # 【テスト用】一旦判定無視して送信してみるならこれ
 
     # 6. アラート判定（AlertManagerを使用）
     alerter.check(data)
