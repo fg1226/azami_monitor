@@ -88,13 +88,14 @@ def main():
 
     # 4. InfluxDBへ直接書き込み
     try:
-        point = Point("environment_v2") \
-            .time(datetime.strptime(now_str, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%dT%H:%M:%SZ")) \
+        point = Point("environment") \
+            .time(datetime.utcnow()) \  # ← 文字列変換をやめて、現在のUTC時刻をそのまま渡す！
             .field("temp", float(data["temp"])) \
             .field("hum", float(data["hum"])) \
             .field("co2", int(data["co2"])) \
             .field("pressure", float(data["pressure"]))
         write_api.write(bucket=INFLUX_BUCKET, record=point)
+        print("✅ InfluxDBへの書き込み成功!")
     except Exception as e:
         print(f"❌ InfluxDB書き込みエラー: {e}")
 
