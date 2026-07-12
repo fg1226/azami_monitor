@@ -1,6 +1,11 @@
 import sys
 import os
 import time
+from datetime import datetime
+
+# InfluxDB用ライブラリ
+from influxdb_client import InfluxDBClient, Point
+from influxdb_client.client.write_api import SYNCHRONOUS
 
 # libsフォルダを読み込めるように設定
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -14,13 +19,22 @@ from libs.db_manager import DBManager
 from libs.alerter import AlertManager
 from libs.config import DISCORD_LOG_URL, DISCORD_ALERT_URL
 
+# InfluxDB設定
+INFLUX_URL = "http://localhost:8086"
+INFLUX_TOKEN = "VbWL5CeFhUV_zzeAav13muak0n7FaV-ftcr-TSBHM5G8KJ2wigB6q1j1SSt37nkvkKjNB_hT2iMHQLDOAUGTlg=="
+INFLUX_ORG = "home"
+INFLUX_BUCKET = "sensors"
+
+# InfluxDBクライアント初期化
+influx_client = InfluxDBClient(url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG)
+write_api = influx_client.write_api(write_options=SYNCHRONOUS)
+
 # 設定用パス
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data") 
 STATE_FILE = os.path.join(DATA_DIR, "alert_state.json")
 LOG_CSV = os.path.join(DATA_DIR, "sensor_log.csv")
 LAST_NOTIFY_FILE = os.path.join(DATA_DIR, "last_notify.txt")
-
 
 # オブジェクトの初期化
 logger = DataLogger(LOG_CSV)
@@ -40,6 +54,7 @@ def get_sensor_data():
         "co2": scd_data.get("co2"),
         "pressure": bme_data.get("pressure")  
     }
+
 def should_notify():
     """10分経過しているか確認"""
     if not os.path.exists(LAST_NOTIFY_FILE):
@@ -57,23 +72,37 @@ def send_periodic_log(data):
     log_notifier.send(msg)
     with open(LAST_NOTIFY_FILE, "w") as f:
         f.write(str(time.time()))
+
 def main():
     # 1. 取得
     data = get_sensor_data()
     if None in data.values():
         print(f"⚠️ センサー取得エラー: {data}")
         return
+    
     # 2. 共通タイムスタンプ取得
-    now = time.strftime("%Y-%m-%d %H:%M:%S")
+    now_str = time.strftime("%Y-%m-%d %H:%M:%S")
 
     # 3. 記録（DataLoggerとDBMnagerを使用）
-    logger.save(now, data)
+    logger.save(now_str, data)
 
-    # 4. 定期通知
+    # 4. InfluxDBへ直接書き込み
+    try:
+        point = Point("environment") \
+            .time(datetime.strptime(now_str, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%dT%H:%M:%SZ")) \
+            .field("temp", float(data["temp"])) \
+            .field("hum", float(data["hum"])) \
+            .field("co2", int(data["co2"])) \
+            .field("pressure", float(data["pressure"]))
+        write_api.write(bucket=INFLUX_BUCKET, record=point)
+    except Exception as e:
+        print(f"❌ InfluxDB書き込みエラー: {e}")
+
+    # 5. 定期通知
     if should_notify():
         send_periodic_log(data)
 
-    # 5. アラート判定（AlertManagerを使用）
+    # 6. アラート判定（AlertManagerを使用）
     alerter.check(data)
 
 if __name__ == "__main__":
