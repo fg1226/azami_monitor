@@ -88,7 +88,7 @@ def main():
 
     # 4. InfluxDBへ直接書き込み
     try:
-        point = Point("environment") \
+        point = Point("environment_v2") \
             .time(datetime.strptime(now_str, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%dT%H:%M:%SZ")) \
             .field("temp", float(data["temp"])) \
             .field("hum", float(data["hum"])) \
