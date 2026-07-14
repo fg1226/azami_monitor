@@ -17,25 +17,30 @@ class AlertManager:
         USER_ID = "573382845259841547"
         mention = f"<@{USER_ID}> "        
         
-        # 1000を超えていたらカウントアップ
+        # 1. 警告判定
         if co2 > 1100:
             count += 1
-            # 3回連続超えたらアラート（既にアラート中なら重複通知しない）
-            if count >= 3 and not was_alerting:
+            # まだアラートを出しておらず、3回連続で超えた場合
+            if not was_alerting and count >= 3:
                 self.notifier.send(f"{mention}\n🚨 **【換気アラート】CO2濃度が {co2} ppm に達しました！窓を開けて換気してください！**")
                 self._save_state(True, 0)
-                return
-        # 800未満になったら回復判定
+            else:
+                # アラート中か、まだカウントが足りない場合はカウントを保存
+                self._save_state(was_alerting, count)
+        
+        # 2. 回復判定（アラート中かつ700未満になったら解除）
         elif co2 < 700 and was_alerting:
             self.notifier.send(f"{mention}\n🟢 **【換気完了】CO2濃度が {co2} ppm まで下がりました。もう大丈夫ですよ～！窓を閉めて構いません。**")
             self._save_state(False, 0)
-            return
+            
+        # 3. どちらでもない場合（正常範囲内）
         else:
-            # 閾値の範囲内ならカウントをリセット
-            count = 0
-
-        # 状態を保存（アラート中でなければ現在のカウントを保持）
-        self._save_state(was_alerting, count)
+            # アラート中でなければカウントをリセットして保存
+            if not was_alerting:
+                self._save_state(False, 0)
+            else:
+                # アラート中だがまだ回復していない場合は状態を維持
+                self._save_state(True, count)
 
     def _load_state(self):
         if os.path.exists(self.state_file):
