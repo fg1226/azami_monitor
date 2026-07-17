@@ -110,8 +110,19 @@ def main():
                 elapsed = time.time() - float(f.read())
                 print(f"DEBUG: 通知判定 -> False (経過時間: {int(elapsed)}秒 / 600秒)")
 
-    # 6. アラート判定（AlertManagerを使用）
-    alerter.check(data)
+    # 6. ★ここでアラートをチェックする前に、停止中かどうかを判定する！
+    ALERT_MODE_FILE = os.path.join(DATA_DIR, "alert_mode.txt")
+    is_alert_enabled = True
+    if os.path.exists(ALERT_MODE_FILE):
+        with open(ALERT_MODE_FILE, "r") as f:
+            if f.read().strip() == "disabled":
+                is_alert_enabled = False
+
+    if is_alert_enabled:
+        # アラート判定を実行
+        alerter.check(data)
+    else:
+        print("ℹ️ アラート停止中なのでチェックをスキップします")
 
 if __name__ == "__main__":
     main()
