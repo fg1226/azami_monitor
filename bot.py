@@ -37,7 +37,7 @@ async def アラート停止(ctx):
 async def アラート再開(ctx):
     global alert_enabled
     alert_enabled = True
-    await ctx.send("✅ わかりました！アラートを停止します！")
+    await ctx.send("✅ わかりました！アラートを再開します！\n換気が必要になったらお知らせしますね。")
 
 # 定期的にセンサーをチェックするループ処理（これが必要！）
 from discord.ext import tasks
