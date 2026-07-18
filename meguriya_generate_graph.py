@@ -1,52 +1,62 @@
-import matplotlib.pyplot as plt
+import os
 import io
 import pandas as pd
+import matplotlib.pyplot as plt
+from dotenv import load_dotenv
 from influxdb_client import InfluxDBClient
 
-# InfluxDB設定
-URL = "http://localhost:8086"
-TOKEN = "VbWL5CeFhUV_zzeAav13muak0n7FaV-ftcr-TSBHM5G8KJ2wigB6q1j1SSt37nkvkKjNB_hT2iMHQLDOAUGTlg=="
-ORG = "home"
-BUCKET = "sensors"
+load_dotenv()
+INFLUX_TOKEN = os.getenv("INFLUX_TOKEN")
 
 def create_graph_buffer():
-    client = InfluxDBClient(url=URL, token=TOKEN, org=ORG)
+    client = InfluxDBClient(url="http://localhost:8086", token=INFLUX_TOKEN, org="home")
     query_api = client.query_api()
 
-    # 過去24時間のデータを取得するクエリ
-    query = f'''
-    from(bucket: "{BUCKET}")
-      |> range(start: -24h)
-      |> filter(fn: (r) => r["_measurement"] == "environment_v2")
-      |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
-    '''
+    query = 'from(bucket: "sensors") |> range(start: -24h) |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'
     df = query_api.query_data_frame(query)
 
-    # グラフ描画
-    plt.figure(figsize=(10, 5))
-    plt.plot(df['_time'], df['co2'], label='CO2 (ppm)')
-    plt.title("24h CO2 Trend")
-    plt.legend()
+    df['_time'] = pd.to_datetime(df['_time']).dt.tz_convert('Asia/Tokyo')
+    df = df[(df['_time'].dt.hour >= 4) & (df['_time'].dt.hour < 22)]
+
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+    fig.subplots_adjust(right=0.75) 
     
-    # バッファ（メモリ）に画像を保存
+    # 1. 左軸: CO2 (緑)
+    ax1.plot(df['_time'], df['co2'], color='green', label='CO2 (ppm)')
+    ax1.set_ylabel('CO2 (ppm)', color='green')
+    ax1.tick_params(axis='y', colors='green')
+    ax1.set_ylim(200, 1800)
+    ax1.axhline(1100, color='red', linestyle='--', alpha=0.5)
+    ax1.axhline(700, color='green', linestyle='--', alpha=0.5)
+
+    # 2. 右軸1: 温度 (オレンジ)
+    ax2 = ax1.twinx()
+    ax2.plot(df['_time'], df['temp'], color='orange', label='Temp (°C)')
+    ax2.set_ylabel('Temp (°C)', color='orange')
+    ax2.tick_params(axis='y', colors='orange')
+    ax2.set_ylim(24.5, 28.5)
+
+    # 3. 右軸2: 湿度 (青)
+    ax3 = ax1.twinx()
+    ax3.spines["right"].set_position(("axes", 1.2)) # 外側にずらす
+    ax3.plot(df['_time'], df['hum'], color='blue', label='Humidity (%)')
+    ax3.set_ylabel('Humidity (%)', color='blue')
+    ax3.tick_params(axis='y', colors='blue')
+    ax3.spines["right"].set_color("blue")
+    ax3.set_ylim(40, 90)
+
+    # 凡例統合
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    lines3, labels3 = ax3.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2 + lines3, labels1 + labels2 + labels3, loc='upper left')
+
+    plt.title("Daily Activity Report")
+    plt.tight_layout()
+
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
     plt.close()
-    
-    return buf
 
-# ==========================================
-# ここから下が「実際にスクリプトを動かす」部分
-# ==========================================
-if __name__ == "__main__":
-    print("データ取得と画像生成を開始します...")
-    
-    # 関数を呼び出してバッファを受け取る
-    buf = create_graph_buffer()
-    
-    # バッファのデータをファイルとして書き出す
-    with open("test_graph.png", "wb") as f:
-        f.write(buf.getbuffer())
-    
-    print("✅ 画像生成完了！ test_graph.png を確認してください。")
+    return buf
