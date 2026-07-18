@@ -1,6 +1,8 @@
 import sys
 import os
 import time
+import os
+from dotenv import load_dotenv
 from datetime import datetime
 
 # InfluxDB用ライブラリ
@@ -21,7 +23,7 @@ from libs.config import DISCORD_LOG_URL, DISCORD_ALERT_URL
 
 # InfluxDB設定
 INFLUX_URL = "http://localhost:8086"
-INFLUX_TOKEN = "VbWL5CeFhUV_zzeAav13muak0n7FaV-ftcr-TSBHM5G8KJ2wigB6q1j1SSt37nkvkKjNB_hT2iMHQLDOAUGTlg=="
+INFLUX_TOKEN = os.getenv("INFLUX_TOKEN")
 INFLUX_ORG = "home"
 INFLUX_BUCKET = "sensors"
 
